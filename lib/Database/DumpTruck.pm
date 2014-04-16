@@ -238,7 +238,7 @@ sub create_table
 {
 	my $self = shift;
 	my $data = shift;
-	my $table_name = shift;
+	my $table_name = shift or die 'Need table name';
 	my $error_if_exists = shift;
 
 	# Get ordered key-value pairs
