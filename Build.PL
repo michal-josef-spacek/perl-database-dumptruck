@@ -19,6 +19,7 @@ my $build = Module::Build->new(
 	},
 	requires => {
 		'B' => 0,
+		'JSON' => 0,
 		'DBI' => 0,
 		'DBD::SQLite' => 0,
 	},

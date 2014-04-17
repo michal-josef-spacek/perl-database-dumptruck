@@ -13,7 +13,12 @@ Database::DumpTruck - Relaxing interface to SQLite
   $dt->upsert({Hello => 'World', Yolo => 8086});
   my $data = $dt->dump;
 
-  $dt->insert([{Drogy => 'Detom'}, {Yolo => 8086}], 'table2');
+  $dt->insert([
+      {Hello => 'World'},
+      {Hello => 'Hell', Structured => {
+          key => value,
+          array => [ 1, 2, 3, {} ],
+      }}], 'table2');
   my $data2 = $dt->dump('table2');
   $dt->drop('table2');
   $dt->execute('SELECT 666');
@@ -37,6 +42,7 @@ use warnings;
 
 use DBI;
 use B;
+use JSON;
 require DBD::SQLite;
 
 sub get_column_type
@@ -45,6 +51,15 @@ sub get_column_type
 
 	return unless defined $v;
 
+	# A reference?
+	my $ref = ref $v;
+	if ($ref) {
+		return 'json text' if $ref eq 'ARRAY' or $ref eq 'HASH';
+		# TODO: blessings into some magic package names to force a type?
+		# TODO: What's the most canonical package to describe datetime?
+	}
+
+	# A scalar.
 	my $obj = B::svref_2object (\$v);
 	my $flags = $obj->FLAGS;
 
@@ -172,9 +187,15 @@ sub execute
 	return [] unless $sth->{NUM_OF_FIELDS};
 
 	while (my $row = $sth->fetch) {
+		my $types = $sth->{TYPE};
+		my $names = $sth->{NAME_lc};
 		push @retval, {};
-		# Yes, that. And I'm not even ashamed.
-		@{$retval[$#retval]}{@{$sth->{NAME_lc}}} = @$row;
+
+		foreach (0..$#$row) {
+			my $data = $row->[$_];
+			$data = decode_json ($data) if $types->[$_] eq 'json text';
+			$retval[$#retval]->{$names->[$_]} = $data;
+		}
 	};
 
 	return \@retval;
@@ -309,6 +330,10 @@ sub insert
 	# Ensure the table itself exists
 	$self->create_table ($data, $table_name);
 
+	# Learn about the types of already existing fields
+	my %column_types = map { lc($_->{name}) => $_->{type} }
+		@{$self->column_names ($table_name)};
+
 	# Get ordered key-value pairs
 	my $converted_data = convert ($data);
 	die 'No data passed' unless $converted_data and $converted_data->[0];
@@ -317,8 +342,19 @@ sub insert
 	my @rowids;
 	foreach (@$converted_data) {
 		$self->_check_and_add_columns ($table_name, $_);
-		my @keys = map { $_->[0] } @$_;
-		my @values = map { $_->[1] } @$_;
+
+		my (@keys, @values);
+		foreach my $cols (@$_) {
+			my ($key, $value) = @$cols;
+
+			# Learn about the type and possibly do a conversion
+			my $type = $column_types{lc($key)} or get_column_type ($value);
+			$value = encode_json ($value) if $type eq 'json text';
+
+			push @keys, $key;
+			push @values, $value;
+		}
+
 		if (@keys) {
 			my $question_marks = join ',', map { '?' } 1..@keys;
 			$self->execute (sprintf ('INSERT %s INTO %s (%s) VALUES (%s)',
@@ -441,7 +477,7 @@ sub drop
 
 =head1 BUGS
 
-The structured values don't work.
+Structured values won't work for variables.
 
 =head1 SEE ALSO
 
