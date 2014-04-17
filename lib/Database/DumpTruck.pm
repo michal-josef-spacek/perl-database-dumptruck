@@ -138,6 +138,7 @@ sub new
 		AutoCommit => $self->{auto_commit},
 		RaiseError => 1, PrintError => 0 })
 		or die "Could get a database handle: $!";
+	$self->{dbh}{sqlite_unicode} = 1;
 
 	return bless $self, $class;
 }

@@ -6,6 +6,7 @@ use File::Temp;
 
 use strict;
 use warnings;
+use utf8;
 
 BEGIN { use_ok ('Database::DumpTruck'); }
 my $dbname = new File::Temp;
@@ -149,10 +150,12 @@ is_deeply ([$dt3->insert ({
 	name => 'Behemoth',
 	age => 666,
 	yes => !!1,
+	wide => 'Pišišvorík',
 	random => {
 		name => 'Behemoth',
 		age => 666,
 		yes => !!1,
+		wide => 'Pišišvorík',
 	}
 })], [1], 'Insert of structured data successful');
 
@@ -163,17 +166,21 @@ is_deeply ($dt3->column_names, [
 		cid => 1, dflt_value => undef },
 	{ notnull => 0, pk => 0, name => 'random', type => 'json text',
 		cid => 2, dflt_value => undef },
+	{ notnull => 0, pk => 0, name => 'wide', type => 'text',
+		cid => 3, dflt_value => undef },
 	{ notnull => 0, pk => 0, name => 'yes', type => 'bool',
-		cid => 3, dflt_value => undef }
+		cid => 4, dflt_value => undef }
 ], 'Proper table structure creates');
 
 is_deeply ($dt3->dump, [{
 	name => 'Behemoth',
 	age => 666,
 	yes => !!1,
+	wide => 'Pišišvorík',
 	random => {
 		name => 'Behemoth',
 		age => 666,
 		yes => !!1,
+		wide => 'Pišišvorík',
 	}
 }], 'Proper data was retrieved from the database');
