@@ -10,10 +10,10 @@ Database::DumpTruck - Relaxing interface to SQLite
 
   $dt->insert({Hello => 'World'});
   $dt->create_index(['Hello'], 'dumptruck');
-  $dt->upsert({Hello => 'World', Yolo => 'Swag'});
+  $dt->upsert({Hello => 'World', Yolo => 8086});
   my $data = $dt->dump;
 
-  $dt->insert([{Drogy => 'Detom'}, {Yolo => 'Swag'}], 'table2');
+  $dt->insert([{Drogy => 'Detom'}, {Yolo => 8086}], 'table2');
   my $data2 = $dt->dump('table2');
   $dt->drop('table2');
   $dt->execute('SELECT 666');
@@ -36,10 +36,31 @@ use strict;
 use warnings;
 
 use DBI;
+use B;
 require DBD::SQLite;
 
 sub get_column_type
 {
+	my $v = shift;
+
+	return unless defined $v;
+
+	my $obj = B::svref_2object (\$v);
+	my $flags = $obj->FLAGS;
+
+	# Could here be a better way to detect a boolean?
+	if (($flags & (B::SVf_IOK | B::SVf_NOK | B::SVf_POK))
+		== (B::SVf_IOK | B::SVf_NOK | B::SVf_POK))
+	{
+		return 'bool'
+			if ($obj->IV == 0 && $obj->NV == 0 && $obj->PV eq '')
+			or ($obj->IV == 1 && $obj->NV == 1 && $obj->PV eq '1');
+	}
+
+	return 'text' if $flags & B::SVf_POK;
+	return 'real' if $flags & B::SVf_NOK;
+	return 'integer' if $flags & B::SVf_IOK;
+
 	return 'text';
 }
 
@@ -420,8 +441,7 @@ sub drop
 
 =head1 BUGS
 
-No types other than C<text> are recognized yet -- the structured values don't
-work.
+The structured values don't work.
 
 =head1 SEE ALSO
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use Test::More tests => 36;
+use Test::More tests => 39;
 use Test::Exception;
 use File::Temp;
 
@@ -142,3 +142,26 @@ is_deeply ($dt3->execute ('DELETE FROM table2'), [],
 	'Issued a raw SQL statement');
 is_deeply ($dt3->dump ('table2'), [],
 	'The statement run correctly');
+
+# Try some structured and typed data
+
+is_deeply ([$dt3->insert ({
+	name => 'Behemoth',
+	age => 666,
+	yes => !!1,
+})], [1], 'Insert of structured data successful');
+
+is_deeply ($dt3->column_names, [
+	{ notnull => 0, pk => 0, name => 'age', type => 'integer',
+		cid => 0, dflt_value => undef },
+	{ notnull => 0, pk => 0, name => 'name', type => 'text',
+		cid => 1, dflt_value => undef },
+	{ notnull => 0, pk => 0, name => 'yes', type => 'bool',
+		cid => 2, dflt_value => undef }
+], 'Proper table structure creates');
+
+is_deeply ($dt3->dump, [{
+	name => 'Behemoth',
+	age => 666,
+	yes => !!1,
+}], 'Proper data was retrieved from the database');
