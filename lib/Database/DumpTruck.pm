@@ -116,6 +116,10 @@ The database file.
 
 Name of the variables table.
 
+=item B<vars_table_tmp> (Default: C<_dumptruckvarstmp>)
+
+Name of the temporary table used when converting the values for variables table.
+
 =item B<auto_commit> (Default: C<1>)
 
 Enable automatic commit.
@@ -131,6 +135,7 @@ sub new
 
 	$self->{dbname} ||= 'dumptruck.db';
 	$self->{vars_table} ||= '_dumptruckvars';
+	$self->{vars_table_tmp} ||= '_dumptruckvarstmp';
 	$self->{auto_commit} = 1
 		unless exists $self->{auto_commit};
 
@@ -406,8 +411,20 @@ sub get_var
 
 	my $data = $self->execute(sprintf ('SELECT * FROM %s WHERE `key` = ?',
 		$self->{dbh}->quote ($self->{vars_table})), $k);
-	return unless $data and $data->[0];
-	return $data->[0]{value};
+	return unless defined $data and exists $data->[0];
+
+	# Create a temporary table, to take advantage of the type
+	# guessing and conversion we do in dump()
+	$self->execute (sprintf 'CREATE TEMPORARY TABLE %s (`value` %s)',
+		$self->{dbh}->quote ($self->{vars_table_tmp}),
+		$self->{dbh}->quote ($data->[0]{type}));
+	$self->execute (sprintf ('INSERT INTO %s (`value`) VALUES (?)',
+		$self->{dbh}->quote ($self->{vars_table_tmp})),
+		$data->[0]{value});
+	my $v = $self->dump ($self->{vars_table_tmp})->[0]{value};
+	$self->drop ($self->{vars_table_tmp});
+
+	return $v;
 }
 
 =item B<save_var> (key, value)
@@ -424,10 +441,20 @@ sub save_var
 
 	$self->_check_or_create_vars_table;
 
+	# Create a temporary table, to take advantage of the type
+	# guessing and conversion we do in insert()
+	my $column_type = get_column_type ($v);
+	$self->drop ($self->{vars_table_tmp}, 1);
+	$self->insert ({ value => $v }, $self->{vars_table_tmp});
+
 	$self->execute(sprintf ('INSERT OR REPLACE INTO %s '.
-		'(`key`, `type`, `value`) VALUES (?, ?, ?)',
-		$self->{dbh}->quote ($self->{vars_table})),
-		$k, get_column_type ($v), $v);
+		'(`key`, `type`, `value`)'.
+		'SELECT ? AS key, ? AS type, value FROM %s',
+		$self->{dbh}->quote ($self->{vars_table}),
+		$self->{dbh}->quote ($self->{vars_table_tmp})),
+			$k, get_column_type ($v));
+
+	$self->drop ($self->{vars_table_tmp});
 }
 
 =item B<tables> ()
@@ -480,7 +507,7 @@ sub drop
 
 =head1 BUGS
 
-Structured values won't work for variables.
+None know.
 
 =head1 SEE ALSO
 

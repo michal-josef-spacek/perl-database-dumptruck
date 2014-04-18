@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use Test::More tests => 39;
+use Test::More tests => 43;
 use Test::Exception;
 use File::Temp;
 
@@ -127,6 +127,14 @@ is_deeply ($dt3->save_var('number_of_the_beast', 8086), [],
 	'Variable updated');
 is ($dt3->get_var('number_of_the_beast'), 8086,
 	'Updated variable retrieved');
+is_deeply ($dt3->save_var('array_of_the_beast', [666]), [],
+	'Array variable inserted');
+is_deeply ($dt3->get_var('array_of_the_beast'), [666],
+	'Array variable retrieved');
+is_deeply ($dt3->save_var('undef_of_the_beast', undef), [],
+	'Undefined variable inserted');
+is_deeply ($dt3->get_var('undef_of_the_beast'), undef,
+	'Undefined variable retrieved');
 
 # And some low-level stuff
 is_deeply ($dt3->column_names ('table2'), [
