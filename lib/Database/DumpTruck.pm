@@ -112,6 +112,10 @@ Initialize the database handle. Accepts optional hash with parameters:
 
 The database file.
 
+=item B<table> (Default: C<dumptruck>)
+
+Name for the default table.
+
 =item B<vars_table> (Default: C<_dumptruckvars>)
 
 Name of the variables table.
@@ -134,6 +138,7 @@ sub new
 	my $self = shift || {};
 
 	$self->{dbname} ||= 'dumptruck.db';
+	$self->{table} ||= 'dumptruck';
 	$self->{vars_table} ||= '_dumptruckvars';
 	$self->{vars_table_tmp} ||= '_dumptruckvarstmp';
 	$self->{auto_commit} = 1
@@ -157,7 +162,7 @@ Return a list of names of all columns in given table, or table C<dumptruck>.
 sub column_names
 {
 	my $self = shift;
-	my $table_name = shift || 'dumptruck';
+	my $table_name = shift || $self->{table};
 
 	$self->execute (sprintf 'PRAGMA table_info(%s)',
 		$self->{dbh}->quote ($table_name))
@@ -329,7 +334,7 @@ sub insert
 {
 	my $self = shift;
 	my $data = shift;
-	my $table_name = shift || 'dumptruck';
+	my $table_name = shift || $self->{table};
 	my $upsert = shift;
 
 	# Override existing entries
@@ -480,7 +485,7 @@ Returns all data from the given table or C<dumptduck> nicely structured.
 sub dump
 {
 	my $self = shift;
-	my $table_name = shift || 'dumptruck';
+	my $table_name = shift || $self->{table};
 
 	$self->execute (sprintf 'SELECT * FROM %s',
 		$self->{dbh}->quote ($table_name))
@@ -495,7 +500,7 @@ Drop the given table or C<dumptruck>.
 sub drop
 {
 	my $self = shift;
-	my $table_name = shift || 'dumptruck';
+	my $table_name = shift || $self->{table};
 	my $if_exists = shift;
 
 	$self->execute (sprintf 'DROP TABLE %s %s',
