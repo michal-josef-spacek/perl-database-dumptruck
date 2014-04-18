@@ -9,7 +9,7 @@ Database::DumpTruck - Relaxing interface to SQLite
   my $dt = new Database::DumpTruck;
 
   $dt->insert({Hello => 'World'});
-  $dt->create_index(['Hello'], 'dumptruck');
+  $dt->create_index(['Hello']);
   $dt->upsert({Hello => 'World', Yolo => 8086});
   my $data = $dt->dump;
 
@@ -239,7 +239,7 @@ sub close
 	$self->{dbh} = undef;
 }
 
-=item B<create_index> (columns, table_name, [if_not_exists], [unique])
+=item B<create_index> (columns, [table_name], [if_not_exists], [unique])
 
 Create an optionally unique index on columns in a given table. Can be told
 to do nothing if the index already exists.
@@ -250,7 +250,7 @@ sub create_index
 {
 	my $self = shift;
 	my $columns = shift;
-	my $table_name = shift;
+	my $table_name = shift || $self->{table};
 	my $if_not_exists = shift;
 	$if_not_exists = (not defined $if_not_exists or $if_not_exists)
 		? 'IF NOT EXISTS' : '';
