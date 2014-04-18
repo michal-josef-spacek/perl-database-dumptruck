@@ -151,25 +151,29 @@ is_deeply ([$dt3->insert ({
 	age => 666,
 	yes => !!1,
 	wide => 'Pišišvorík',
+	foo => undef,
 	random => {
 		name => 'Behemoth',
 		age => 666,
 		yes => !!1,
 		wide => 'Pišišvorík',
+		foo => undef,
 	}
 })], [1], 'Insert of structured data successful');
 
 is_deeply ($dt3->column_names, [
 	{ notnull => 0, pk => 0, name => 'age', type => 'integer',
 		cid => 0, dflt_value => undef },
-	{ notnull => 0, pk => 0, name => 'name', type => 'text',
+	{ notnull => 0, pk => 0, name => 'foo', type => '',
 		cid => 1, dflt_value => undef },
-	{ notnull => 0, pk => 0, name => 'random', type => 'json text',
+	{ notnull => 0, pk => 0, name => 'name', type => 'text',
 		cid => 2, dflt_value => undef },
-	{ notnull => 0, pk => 0, name => 'wide', type => 'text',
+	{ notnull => 0, pk => 0, name => 'random', type => 'json text',
 		cid => 3, dflt_value => undef },
+	{ notnull => 0, pk => 0, name => 'wide', type => 'text',
+		cid => 4, dflt_value => undef },
 	{ notnull => 0, pk => 0, name => 'yes', type => 'bool',
-		cid => 4, dflt_value => undef }
+		cid => 5, dflt_value => undef }
 ], 'Proper table structure creates');
 
 is_deeply ($dt3->dump, [{
@@ -177,10 +181,12 @@ is_deeply ($dt3->dump, [{
 	age => 666,
 	yes => !!1,
 	wide => 'Pišišvorík',
+	foo => undef,
 	random => {
 		name => 'Behemoth',
 		age => 666,
 		yes => !!1,
 		wide => 'Pišišvorík',
+		foo => undef,
 	}
 }], 'Proper data was retrieved from the database');

@@ -49,7 +49,7 @@ sub get_column_type
 {
 	my $v = shift;
 
-	return unless defined $v;
+	return '' unless defined $v;
 
 	# A reference?
 	my $ref = ref $v;
@@ -286,7 +286,7 @@ sub create_table
 
 	# Get ordered key-value pairs
 	my $converted_data = convert ($data);
-	die 'No data passed' unless $converted_data and $converted_data->[0];
+	die 'No data passed' unless $converted_data->[0];
 
 	# Find first non-null column
 	my $startdata = $converted_data->[0];
@@ -296,8 +296,10 @@ sub create_table
 		last if defined $v;
 	}
 
-	# None.
-	return unless $k and $v;
+	# No columns, don't attempt table creation. Do not die either as
+	# the table might already exist and user may just want to insert
+	# an all-default/empty row.
+	return unless $k;
 
 	# Create the table with the first column
 	my $if_not_exists = 'IF NOT EXISTS' unless $error_if_exists;
