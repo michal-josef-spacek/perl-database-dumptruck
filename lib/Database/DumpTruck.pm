@@ -512,7 +512,9 @@ sub drop
 
 =head1 BUGS
 
-None know.
+We make use of C<AutoCommit> in L<DBI>, which does not work properly with 
+L<DBD::SQLite> locking on BSDs. Set C<auto_commit> to 0 there and call
+C<commit> explicitely, or avoid BSDs.
 
 =head1 SEE ALSO
 
