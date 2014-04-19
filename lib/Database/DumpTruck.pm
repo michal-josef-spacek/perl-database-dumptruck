@@ -204,7 +204,7 @@ sub execute
 
 		foreach (0..$#$row) {
 			my $data = $row->[$_];
-			$data = decode_json ($data) if $types->[$_] eq 'json text';
+			$data = decode_json ($data) if $data and $types->[$_] eq 'json text';
 			$retval[$#retval]->{$names->[$_]} = $data;
 		}
 	};
