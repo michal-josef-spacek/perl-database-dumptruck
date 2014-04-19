@@ -64,12 +64,12 @@ sub get_column_type
 	my $flags = $obj->FLAGS;
 
 	# Could here be a better way to detect a boolean?
-	if (($flags & (B::SVf_IOK | B::SVf_NOK | B::SVf_POK))
-		== (B::SVf_IOK | B::SVf_NOK | B::SVf_POK))
+	if (($flags & (B::SVf_NOK | B::SVf_POK))
+		== (B::SVf_NOK | B::SVf_POK))
 	{
 		return 'bool'
-			if ($obj->IV == 0 && $obj->NV == 0 && $obj->PV eq '')
-			or ($obj->IV == 1 && $obj->NV == 1 && $obj->PV eq '1');
+			if ($obj->NV == 0 && $obj->PV eq '')
+			or ($obj->NV == 1 && $obj->PV eq '1');
 	}
 
 	return 'text' if $flags & B::SVf_POK;
