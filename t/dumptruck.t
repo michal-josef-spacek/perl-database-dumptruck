@@ -110,7 +110,8 @@ is_deeply ($dt3->dump ('table2'), [
 	{ hello => 'World', goodbye => 'Heavens' }
 ], 'The row is there');
 throws_ok { $dt3->insert ({ hello => 'World', goodbye => 'Hell' }, 'table2') }
-	qr/column hello is not unique/, 'Constrain violation caught';
+	qr/column hello is not unique|UNIQUE constraint failed: table2.hello/,
+	'Constrain violation caught';
 is_deeply ([$dt3->upsert ({ hello => 'World', goodbye => 'Pandemonium' },
 	'table2')], [2], 'Updated a row');
 is_deeply ($dt3->dump ('table2'), [
