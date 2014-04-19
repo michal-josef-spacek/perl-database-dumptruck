@@ -35,6 +35,40 @@ after Scraperwiki's Python C<dumptruck> module. It allows for easy (and maybe
 inefficient) storage and retrieval of structured data to and from a database
 without interfacing with SQL.
 
+L<Database::DumpTruck> attempts to identify the type of the data you're inserting and uses an appropriate SQLite type:
+
+=over 4
+
+=item C<integer>
+
+This is used for integer values. Will be used for C<8086>, but not C<"8086"> or
+C<8086.0>.
+
+=item C<real>
+
+This is used for numeric values that are not integer. Will be used for
+C<8086.0>, but not C<"8086"> or C<8086>.
+
+=item C<bool>
+
+This is used for values that look like result of logical statemen. A crude
+check for values that are both C<""> and C<0> or both C<"1"> and C<1> at the
+same time is in place. This is a result of comparison or a negation.
+
+To force a value to look like boolean, prepend it with a double negation: e.g.
+C<!!0> or C<!!1>.
+
+=item C<json text>
+
+Used for C<ARRAY> and C<HASH> references. Values are converted into and from
+JSON strings upon C<insert> and C<dump>.
+
+=item C<text>
+
+Pretty much everything else.
+
+=back
+
 =cut
 
 use strict;
