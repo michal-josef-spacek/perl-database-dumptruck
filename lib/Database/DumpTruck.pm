@@ -35,7 +35,8 @@ after Scraperwiki's Python C<dumptruck> module. It allows for easy (and maybe
 inefficient) storage and retrieval of structured data to and from a database
 without interfacing with SQL.
 
-L<Database::DumpTruck> attempts to identify the type of the data you're inserting and uses an appropriate SQLite type:
+L<Database::DumpTruck> attempts to identify the type of the data you're
+inserting and uses an appropriate SQLite type:
 
 =over 4
 
@@ -78,6 +79,8 @@ use DBI;
 use B;
 use JSON;
 require DBD::SQLite;
+
+our $VERSION = '1.0';
 
 sub get_column_type
 {
