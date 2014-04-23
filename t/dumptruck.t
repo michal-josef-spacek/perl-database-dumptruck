@@ -9,7 +9,7 @@ use warnings;
 use utf8;
 
 BEGIN { use_ok ('Database::DumpTruck'); }
-my $dbname = new File::Temp;
+my $dbname = new File::Temp (EXLOCK => 0);
 
 # Initial data store initializaion and checks.
 
