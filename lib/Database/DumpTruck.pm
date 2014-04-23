@@ -409,7 +409,7 @@ sub insert
 			my $question_marks = join ',', map { '?' } 1..@keys;
 			$self->execute (sprintf ('INSERT %s INTO %s (%s) VALUES (%s)',
 				$upserttext, $self->{dbh}->quote ($table_name),
-				join (',', @keys),
+				join (',', map { $self->{dbh}->quote($_) } @keys),
 				$question_marks), @values);
 		} else {
 			$self->execute (sprintf 'INSERT %s INTO %s DEFAULT VALUES',
