@@ -314,6 +314,7 @@ sub _check_and_add_columns
 			$self->{dbh}->quote ($table_name),
 			$self->{dbh}->quote ($k), get_column_type ($v)) };
 		die if $@ and not $@ =~ /duplicate column name/;
+		undef $@;
 	}
 }
 
