@@ -6,6 +6,7 @@ Database::DumpTruck - Relaxing interface to SQLite
 
 =head1 SYNOPSIS
 
+  use Database::DumpTruck;
   my $dt = new Database::DumpTruck;
 
   $dt->insert({Hello => 'World'});
@@ -164,6 +165,12 @@ Name of the temporary table used when converting the values for variables table.
 =item B<auto_commit> (Default: C<1>)
 
 Enable automatic commit.
+
+=item B<debug> (Default: C<undef>)
+
+Print SQL statements to C<STDERR> as they are executed. Please note that,
+while potentially useful, this might be somewhat confusing. Enable with
+care if you're a sensitive person, or a DBA.
 
 =back
 
@@ -570,9 +577,12 @@ Copyright 2014, Lubomir Rintel
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Lubomir Rintel L<< <lkundrak@v3.sk> >>
+
+The code is hosted on GitHub L<https://github.com/lkundrak/perl-database-dumptruck>.
+Bug fixes and feature enhancements are always welcome.
 
 =cut
 
