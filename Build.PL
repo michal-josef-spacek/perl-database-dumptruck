@@ -26,6 +26,7 @@ my $build = Module::Build->new(
 		'Test::Pod' => '1.00',
 		'Test::More' => 0,
 		'Test::Exception' => 0,
+		'Test::Deep' => 0,
 		'File::Temp' => 0,
 	},
 );

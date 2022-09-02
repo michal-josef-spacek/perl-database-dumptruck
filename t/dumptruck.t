@@ -2,6 +2,7 @@
 
 use Test::More tests => 43;
 use Test::Exception;
+use Test::Deep;
 use File::Temp;
 
 use strict;
@@ -138,10 +139,10 @@ is_deeply ($dt3->get_var('undef_of_the_beast'), undef,
 	'Undefined variable retrieved');
 
 # And some low-level stuff
-is_deeply ($dt3->column_names ('table2'), [
-	{ notnull => 0, pk => 0, name => 'goodbye', type => 'text',
+cmp_deeply ($dt3->column_names ('table2'), [
+	{ notnull => 0, pk => 0, name => 'goodbye', type => re(qr/^text$/i),
 		cid => 0, dflt_value => undef },
-	{ notnull => 0, pk => 0, name => 'hello', type => 'text',
+	{ notnull => 0, pk => 0, name => 'hello', type => re(qr/^text$/i),
 		cid => 1, dflt_value => undef }
 ], 'Could retrieve table structure');
 
@@ -170,16 +171,16 @@ is_deeply ([$dt3->insert ({
 	}
 })], [1], 'Insert of structured data successful');
 
-is_deeply ($dt3->column_names, [
-	{ notnull => 0, pk => 0, name => 'age', type => 'integer',
+cmp_deeply ($dt3->column_names, [
+	{ notnull => 0, pk => 0, name => 'age', type => re(qr/^integer$/i),
 		cid => 0, dflt_value => undef },
 	{ notnull => 0, pk => 0, name => 'foo', type => '',
 		cid => 1, dflt_value => undef },
-	{ notnull => 0, pk => 0, name => 'name', type => 'text',
+	{ notnull => 0, pk => 0, name => 'name', type => re(qr/^text$/i),
 		cid => 2, dflt_value => undef },
 	{ notnull => 0, pk => 0, name => 'random', type => 'json text',
 		cid => 3, dflt_value => undef },
-	{ notnull => 0, pk => 0, name => 'wide', type => 'text',
+	{ notnull => 0, pk => 0, name => 'wide', type => re(qr/^text$/i),
 		cid => 4, dflt_value => undef },
 	{ notnull => 0, pk => 0, name => 'yes', type => 'bool',
 		cid => 5, dflt_value => undef }
