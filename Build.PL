@@ -27,6 +27,7 @@ my $build = Module::Build->new(
 		'Test::More' => 0,
 		'Test::Exception' => 0,
 		'Test::Deep' => 0,
+		'Test::Deep::JSON' => 0,
 		'File::Temp' => 0,
 	},
 );

@@ -3,6 +3,7 @@
 use Test::More tests => 43;
 use Test::Exception;
 use Test::Deep;
+use Test::Deep::JSON;
 use File::Temp;
 
 use strict;
